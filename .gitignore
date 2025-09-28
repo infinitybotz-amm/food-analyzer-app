@@ -1,0 +1,17 @@
+# Ignore Python cache
+__pycache__/
+*.pyc
+
+# Ignore virtual environment folders
+venv/
+.env/
+
+# Ignore environment variables
+.env
+
+# Ignore logs
+*.log
+app.log
+
+# Ignore Jupyter checkpoints (if you ever use notebooks)
+.ipynb_checkpoints/
