@@ -3,7 +3,7 @@
 
 import streamlit as st
 from PIL import Image
-from google import genai
+import google.generativeai as genai
 from dotenv import load_dotenv
 import os
 import re
@@ -21,15 +21,16 @@ logging.basicConfig(
 
 # --- Load environment variables ---
 load_dotenv()
-api_key = os.getenv("GOOGLE_API_KEY")
 
+api_key = os.getenv("GOOGLE_API_KEY")
 if not api_key:
     st.error("⚠️ GOOGLE_API_KEY not found. Please add it to your .env file.")
     logging.error("GOOGLE_API_KEY missing in environment variables.")
     st.stop()
 
-# Initialize Google GenAI client
-client = genai.Client(api_key=api_key)
+# Configure Google GenAI
+genai.configure(api_key=api_key)
+model = genai.GenerativeModel("gemini-2.5-flash")
 
 # --- Streamlit UI ---
 st.set_page_config(page_title="🍽️ Food Analyzer", page_icon="🍎", layout="centered")
@@ -46,9 +47,8 @@ if uploaded_file:
     if st.button("Estimate Calories"):
         logging.info("User clicked Estimate Calories button.")
         with st.spinner("Analyzing calories..."):
-            response = client.models.generate_content(
-                model="gemini-2.5-flash",
-                contents=[image, "Estimate the total calories in this food. Also list the food items detected."]
+            response = model.generate_content(
+                [image, "Estimate the total calories in this food. Also list the food items detected."]
             )
         st.subheader("📊 Calorie Analysis")
         st.write(response.text)
@@ -58,9 +58,8 @@ if uploaded_file:
     if st.button("Find Cost to Order"):
         logging.info("User clicked Find Cost button.")
         with st.spinner("Estimating cost..."):
-            response = client.models.generate_content(
-                model="gemini-2.5-flash",
-                contents=[image, "Estimate how much this food would cost if ordered in a typical restaurant. Give price in USD."]
+            response = model.generate_content(
+                [image, "Estimate how much this food would cost if ordered in a typical restaurant. Give price in USD."]
             )
         st.subheader("💵 Estimated Cost")
         st.success(response.text)
